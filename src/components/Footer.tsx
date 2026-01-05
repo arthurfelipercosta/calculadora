@@ -1,19 +1,27 @@
-import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, Text, StyleSheet, TextInput } from 'react-native';
 
 interface Props {
-    onPeso: () => void;
+    valorPeso: string;
+    onChangePeso: (text: string) => void;
     onAdicionar: () => void;
 }
 
-export function Footer({ onPeso, onAdicionar }: Props) {
+export function Footer({ valorPeso, onChangePeso, onAdicionar }: Props) {
     return (
         <View style={styles.container}>
-            <TouchableOpacity style={styles.btnPeso} onPress={onPeso}>
-                <Text>PESO</Text>
-            </TouchableOpacity>
+            <TextInput
+                style={styles.inputPeso}
+                value={valorPeso}
+                onChangeText={onChangePeso}
+                placeholder="0.000"
+                placeholderTextColor="#999"
+                keyboardType="numeric"
+                selectTextOnFocus={true}
+                onSubmitEditing={onAdicionar}
+            />
 
             <TouchableOpacity style={styles.btnAdd} onPress={onAdicionar}>
-                <Text style={{ color: '#FFF' }}>Adicionar peso</Text>
+                <Text style={styles.btnAddText}>Adicionar peso</Text>
             </TouchableOpacity>
         </View>
     );
@@ -24,20 +32,34 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         padding: 10,
         backgroundColor: '#FFF',
+        alignItems: 'center',
+        borderTopWidth: 1,
+        borderTopColor: '#EEE',
+        paddingBottom: 20, // Ajuste para não ficar colado no fundo em alguns aparelhos
     },
-    btnPeso: {
+    inputPeso: {
         flex: 1,
         borderWidth: 1,
-        alignItems: 'center',
+        borderColor: '#DDD',
         padding: 12,
         marginRight: 8,
         borderRadius: 8,
+        fontSize: 20,
+        textAlign: 'center',
+        fontWeight: 'bold',
+        backgroundColor: '#F9F9F9',
+        color: '#333',
     },
     btnAdd: {
-        flex: 2,
+        flex: 1.5,
         backgroundColor: '#E53935',
         alignItems: 'center',
-        padding: 12,
+        padding: 15,
         borderRadius: 8,
+    },
+    btnAddText: {
+        color: '#FFF',
+        fontWeight: 'bold',
+        fontSize: 16,
     },
 });

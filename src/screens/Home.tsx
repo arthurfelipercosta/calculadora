@@ -1,16 +1,15 @@
 import { useState } from 'react';
-import { View, StyleSheet, FlatList, Text, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, FlatList, Text, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Peso } from '../types/Peso';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 import { PesoItem } from '../components/PesoItem';
-import { PesoModal } from '../components/PesoModal';
 import { ConfirmModal } from '../components/ConfirmModal';
 
 export function Home() {
     const [pesos, setPesos] = useState<Peso[]>([]);
-    const [modal, setModal] = useState(false);
+    const [valorInput, setValorInput] = useState('');
     const [confirmModal, setConfirmModal] = useState(false);
     const [confirmAction, setConfirmAction] = useState<'delete' | 'clearAll' | null>(null);
     const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -21,27 +20,33 @@ export function Home() {
         0,
     );
 
-    const handleAddPeso = () => {
-        setModal(true);
+    // Lógica de formatação do peso
+    function formatarValor(texto: string): string {
+        const apenasNumeros = texto.replace(/\D/g, '');
+        if (apenasNumeros === '') return '';
+        const padronizado = apenasNumeros.padStart(4, '0');
+        const inteira = padronizado.slice(0, -3);
+        const decimal = padronizado.slice(-3);
+        const inteiraSemZeros = inteira.replace(/^0+/, '') || '0';
+        return `${inteiraSemZeros}.${decimal}`;
+    }
+
+    const handleChangePeso = (texto: string) => {
+        setValorInput(formatarValor(texto));
     };
 
-    const handleOnPeso = () => {
-        setModal(true);
-    };
-
-    const handleModalClose = () => {
-        setModal(false);
-    };
-
-    const handleConfirmPeso = (pesoValor: number) => {
-        const novoPeso: Peso = {
-            id: Date.now().toString(),
-            pesoUnit: pesoValor,
-            quantidade: 1,
-        };
-
-        setPesos([...pesos, novoPeso]);
-        setModal(false);
+    const handleConfirmAddPeso = () => {
+        const pesoValor = parseFloat(valorInput);
+        if (!isNaN(pesoValor) && pesoValor > 0) {
+            const novoPeso: Peso = {
+                id: Date.now().toString(),
+                pesoUnit: pesoValor,
+                quantidade: 1,
+            };
+            // Adiciona no início da lista para ver o item logo que adicionar
+            setPesos([novoPeso, ...pesos]);
+            setValorInput('');
+        }
     };
 
     const handleIncrement = (id: string) => {
@@ -100,39 +105,51 @@ export function Home() {
 
     return (
         <SafeAreaView style={styles.safeArea}>
-            <Header title={"Calculadora de Conferência"} qtdItens={qtdItens} pesoTotal={pesoTotal} />
-            <View style={styles.content}>
-                {pesos.length === 0 ? (
-                    <Text style={styles.emptyListText}>Nenhum peso adicionado ainda.</Text>
-                ) : (
-                    <>
-                        <FlatList
-                            data={pesos}
-                            keyExtractor={(item) => item.id}
-                            renderItem={({ item }) => (
-                                <PesoItem
-                                    item={item}
-                                    onIncrement={() => handleIncrement(item.id)}
-                                    onDecrement={() => handleDecrement(item.id)}
-                                    onDelete={() => handleDeletePeso(item.id)}
-                                    onUpdateQuantidade={(novaQtd) => handleUpdateQuantidade(item.id, novaQtd)}
-                                    onRequestDelete={() => handleDeletePeso(item.id)}
-                                />
-                            )}
-                            contentContainerStyle={styles.flatListContent}
-                        />
-                        <TouchableOpacity style={styles.clearAllButton} onPress={handleClearAll}>
-                            <Text style={styles.clearAllButtonText}>Limpar Tudo</Text>
-                        </TouchableOpacity>
-                    </>
-                )}
-            </View>
-            <Footer onPeso={handleOnPeso} onAdicionar={handleAddPeso} />
-            <PesoModal
-                visible={modal}
-                onClose={handleModalClose}
-                onConfirm={handleConfirmPeso}
-            />
+            <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                style={{ flex: 1 }}
+            >
+                <Header title={"Calculadora de Conferência"} qtdItens={qtdItens} pesoTotal={pesoTotal} />
+
+                <View style={styles.content}>
+                    {pesos.length === 0 ? (
+                        <Text style={styles.emptyListText}>Nenhum peso adicionado ainda.</Text>
+                    ) : (
+                        <>
+                            <View style={styles.listHeader}>
+                                <Text style={[styles.headerLabel, { flex: 1 }]}>Kg</Text>
+                                <Text style={[styles.headerLabel, { width: 100, textAlign: 'center' }]}>QTD</Text>
+                                <Text style={[styles.headerLabel, { flex: 1, textAlign: 'right', paddingRight: 34 }]}>sub.Total</Text>
+                            </View>
+                            <FlatList
+                                data={pesos}
+                                keyExtractor={(item) => item.id}
+                                renderItem={({ item }) => (
+                                    <PesoItem
+                                        item={item}
+                                        onIncrement={() => handleIncrement(item.id)}
+                                        onDecrement={() => handleDecrement(item.id)}
+                                        onDelete={() => handleDeletePeso(item.id)}
+                                        onUpdateQuantidade={(novaQtd) => handleUpdateQuantidade(item.id, novaQtd)}
+                                        onRequestDelete={() => handleDeletePeso(item.id)}
+                                    />
+                                )}
+                                contentContainerStyle={styles.flatListContent}
+                            />
+                            <TouchableOpacity style={styles.clearAllButton} onPress={handleClearAll}>
+                                <Text style={styles.clearAllButtonText}>Limpar Tudo</Text>
+                            </TouchableOpacity>
+                        </>
+                    )}
+                </View>
+
+                <Footer
+                    valorPeso={valorInput}
+                    onChangePeso={handleChangePeso}
+                    onAdicionar={handleConfirmAddPeso}
+                />
+            </KeyboardAvoidingView>
+
             <ConfirmModal
                 visible={confirmModal}
                 title={confirmAction === 'delete' ? 'Excluir Peso' : 'Limpar Tudo'}
@@ -152,10 +169,6 @@ export function Home() {
 
 const styles = StyleSheet.create({
     safeArea: {
-        flex: 1,
-        backgroundColor: '#F2F2F2',
-    },
-    container: {
         flex: 1,
         backgroundColor: '#F2F2F2',
     },
@@ -184,5 +197,19 @@ const styles = StyleSheet.create({
         color: '#FFF',
         fontSize: 16,
         fontWeight: '600',
+    },
+    listHeader: {
+        flexDirection: 'row',
+        paddingHorizontal: 10,
+        paddingBottom: 8,
+        borderBottomWidth: 1,
+        borderBottomColor: '#DDD',
+        marginBottom: 8,
+    },
+    headerLabel: {
+        fontSize: 12,
+        fontWeight: 'bold',
+        color: '#888',
+        textTransform: 'uppercase',
     },
 });
