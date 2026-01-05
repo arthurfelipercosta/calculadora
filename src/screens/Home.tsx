@@ -14,6 +14,9 @@ export function Home() {
     const [confirmAction, setConfirmAction] = useState<'delete' | 'clearAll' | null>(null);
     const [deleteId, setDeleteId] = useState<string | null>(null);
 
+    const [precoKg, setPrecoKg] = useState('');
+    const [showPreco, setShowPreco] = useState(false);
+
     const qtdItens = pesos.reduce((total, item) => total + item.quantidade, 0);
     const pesoTotal = pesos.reduce(
         (total, item) => total + item.pesoUnit * item.quantidade,
@@ -103,13 +106,38 @@ export function Home() {
         );
     };
 
+    function formatarPreco(texto: string): string {
+        const apenasNumeros = texto.replace(/\D/g, '');
+        if (apenasNumeros === '') return '';
+
+        // Garante pelo menos 3 dígitos para formatar X.XX
+        const padronizado = apenasNumeros.padStart(3, '0');
+        const inteira = padronizado.slice(0, -2);
+        const decimal = padronizado.slice(-2);
+        const inteiraSemZeros = inteira.replace(/^0+/, '') || '0';
+
+        return `${inteiraSemZeros}.${decimal}`;
+    }
+
+    const handleChangePreco = (texto: string) => {
+        setPrecoKg(formatarPreco(texto));
+    };
+
     return (
         <SafeAreaView style={styles.safeArea}>
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={{ flex: 1 }}
             >
-                <Header title={"Calculadora de Conferência"} qtdItens={qtdItens} pesoTotal={pesoTotal} />
+                <Header
+                    title={"Calculadora de Conferência"}
+                    qtdItens={qtdItens}
+                    pesoTotal={pesoTotal}
+                    precoKg={precoKg}
+                    onChangePrecoKg={handleChangePreco}
+                    showPreco={showPreco}
+                    onTogglePreco={() => setShowPreco(!showPreco)}
+                />
 
                 <View style={styles.content}>
                     {pesos.length === 0 ? (
