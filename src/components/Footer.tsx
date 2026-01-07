@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderTopWidth: 1,
         borderTopColor: '#EEE',
-        paddingBottom: 20, // Ajuste para não ficar colado no fundo em alguns aparelhos
+        paddingBottom: 10, // Ajuste para não ficar colado no fundo em alguns aparelhos
     },
     inputPeso: {
         flex: 1,

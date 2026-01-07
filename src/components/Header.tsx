@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
     container: {
         padding: 12,
         backgroundColor: '#FFFFFF',
-        paddingTop: 40,
+        paddingTop: 8,
         elevation: 4,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
@@ -82,18 +82,18 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 16,
+        marginBottom: 0,
     },
     title: {
         fontSize: 22,
         fontWeight: 'bold',
-        marginBottom: 16,
+        marginBottom: 8,
         textAlign: 'center',
         color: '#333',
         flex: 1,
     },
     btnToggle: {
-        padding: 5,
+        padding: 8,
     },
     infoContainer: {
         flexDirection: 'row',
@@ -115,8 +115,8 @@ const styles = StyleSheet.create({
     },
     precoArea: {
         flexDirection: 'row',
-        marginTop: 15,
-        paddingTop: 15,
+        marginTop: 4,
+        paddingTop: 4,
         borderTopWidth: 1,
         borderTopColor: '#EEE',
         alignItems: 'center',
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
         borderColor: '#007AFF',
         borderRadius: 6,
         paddingHorizontal: 8,
-        paddingVertical: 4,
+        paddingVertical: 2,
         marginTop: 2,
     },
     currencyPrefix: {
